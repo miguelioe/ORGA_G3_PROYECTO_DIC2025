@@ -31,3 +31,5 @@ void loop() {
 }
 
 ![ServomotorConexionBasica](/img/ServomotorConexionBasica.png)
+
+Link para ver y probar la simulación: https://wokwi.com/projects/450923035980365825
