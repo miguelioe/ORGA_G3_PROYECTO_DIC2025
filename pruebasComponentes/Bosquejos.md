@@ -1,5 +1,6 @@
 ## Prueba básica de código para el servomotor
 
+```Arduino
 #include <Servo.h>
 
 int servoPin = 2; // El servo necesita de un pin PWM
@@ -29,7 +30,7 @@ void loop() {
   miServo.write(servoAngulo);
   delay(2000);
 }
-
+```
 ![ServomotorConexionBasica](/img/ServomotorConexionBasica.png)
 
 Link para ver y probar la simulación: https://wokwi.com/projects/450923035980365825
