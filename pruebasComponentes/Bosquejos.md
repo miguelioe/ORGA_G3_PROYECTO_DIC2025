@@ -149,40 +149,41 @@ void loop() {
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://wokwi.com/projects/450932545007138817)
 
 '''Union de Componentes, Primera Fase
-#include <Servo.h>
+    
+    #include <Servo.h>
 
-#define pinServo 2
-#define pinVelocidad 3
-#define pinDireccion 4
-#define pinPulsador 5
+    #define pinServo 2
+    #define pinVelocidad 3
+    #define pinDireccion 4
+    #define pinPulsador 5
 
-// Variables para Ventilador
-int valorPot = 0;
-int velocidadVentilador = 0;
-// Variables para Puerta
-Servo servoPuerta;
-bool abrirPuerta = false; // Angulo 0 false puerta cerrada
-int servoAngulo = 0;
-unsigned long ultimoTiempo  = 0;
-const unsigned long tiempoEspera  = 200; //Evitar rebotes mecanicos
+    // Variables para Ventilador
+    int valorPot = 0;
+    int velocidadVentilador = 0;
+    // Variables para Puerta
+    Servo servoPuerta;
+    bool abrirPuerta = false; // Angulo 0 false puerta cerrada
+    int servoAngulo = 0;
+    unsigned long ultimoTiempo  = 0;
+    const unsigned long tiempoEspera  = 200; //Evitar rebotes mecanicos
 
 
 
-void setup(){
-  Serial.begin(9600);
-  pinMode(pinVelocidad, OUTPUT);
-  pinMode(pinDireccion, OUTPUT);
-  pinMode(pinPulsador, INPUT);
-  servoPuerta.attach(pinServo);
-  servoPuerta.write(0);
-  delay(1000);
-}
+    void setup(){
+      Serial.begin(9600);
+      pinMode(pinVelocidad, OUTPUT);
+      pinMode(pinDireccion, OUTPUT);
+      pinMode(pinPulsador, INPUT);
+      servoPuerta.attach(pinServo);
+      servoPuerta.write(0);
+      delay(1000);
+        }
 
-void loop(){
-  //Control Puerta
-  int estadoPulsador = digitalRead( pinPulsador );// Leer estado actual del pulsador
-  if ( millis() - ultimoTiempo > tiempoEspera ) {
-    if( estadoPulsador == HIGH && !abrirPuerta ){
+      void loop(){
+      //Control Puerta
+      int estadoPulsador = digitalRead( pinPulsador );// Leer estado actual del pulsador
+      if ( millis() - ultimoTiempo > tiempoEspera ) {
+      if( estadoPulsador == HIGH && !abrirPuerta ){
       ultimoTiempo = millis();  // Actualizar tiempo
       
       Serial.println( "Abriendo puerta..." );
@@ -199,19 +200,18 @@ void loop(){
       abrirPuerta = false;
       delay(500);
     }
-  }
+    }
   
+    //Control Velocidad Ventilador
+    valorPot = analogRead(A0);
+    valorPot = map(valorPot, 0, 1023, 0, 255);
   
-  //Control Velocidad Ventilador
-  valorPot = analogRead(A0);
-  valorPot = map(valorPot, 0, 1023, 0, 255);
-
-  if (valorPot == 0) { velocidadVentilador = 0; } 
-  else if (valorPot < 185) { velocidadVentilador = 150; } 
-  else { velocidadVentilador = 255; }
-  digitalWrite( pinDireccion, HIGH);
-  analogWrite( pinVelocidad, velocidadVentilador );
-}
+    if (valorPot == 0) { velocidadVentilador = 0; } 
+    else if (valorPot < 185) { velocidadVentilador = 150; } 
+    else { velocidadVentilador = 255; }
+    digitalWrite( pinDireccion, HIGH);
+    analogWrite( pinVelocidad, velocidadVentilador );
+    }
 '''<img width="1494" height="608" alt="Union de Componentes" src="https://github.com/user-attachments/assets/0d56795e-ff41-4459-a09a-a5749ab02e82" />
 https://www.tinkercad.com/things/hlgouVLsfX1-union-de-componentes
 
