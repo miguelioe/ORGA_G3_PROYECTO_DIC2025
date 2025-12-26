@@ -31,7 +31,7 @@ void loop() {
   delay(2000);
 }
 ```
-![ServomotorConexionBasica](/img/ServomotorConexionBasica.png)
+![ServomotorConexionBasica](/capturas/ServomotorConexionBasica.png)
 
 Link para ver y probar la simulación: https://wokwi.com/projects/450923035980365825
 
@@ -145,7 +145,7 @@ void loop() {
   lcd.scrollDisplayLeft();
 }
 ```
-![Conexión basica LCD I2C](../img/lcdi2c.png)
+![Conexión basica LCD I2C](../capturas/lcdi2c.png)
 
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://wokwi.com/projects/450932545007138817)
 
