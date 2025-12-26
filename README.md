@@ -6,11 +6,11 @@ MARKDOWN COMPLETO:
 [] EXPLICACION DETALLADA A SU VEZ LLEVA DIAGRAMAS DE FLUJO
 [] DESCRIPCION DE COMANDOS SERIALES CON SU TABLA
 [] EXPLICACION DE ARCHIVOS .org
-[] TABLA DE COMPONENTES CON EXPECIFICACIONES TECNICAS Y TABLA DE PRESUPUESTO
+[x] TABLA DE COMPONENTES CON EXPECIFICACIONES TECNICAS Y TABLA DE PRESUPUESTO
 [] APORTES INDIVIDUALES
 [] ANALISIS DE RESULTADOS Y PRUEBAS REALIZADAS
 [x] CONCLUSIONES
-[] BIBLIOGRAFIA
+[x] BIBLIOGRAFIA
 
 ---
 
@@ -270,3 +270,25 @@ Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad 
 - El uso de la EEPROM garantizó la persistencia del estado del sistema ante reinicios.
 - La pantalla LCD I2C proporcionó una retroalimentación clara y eficiente del funcionamiento del sistema.
 - La comunicación serial permitió un control confiable del sistema desde la computadora, cumpliendo con los objetivos planteados.
+
+---
+
+## Bibliografía
+
+- Arduino. (s.f.). *Arduino Mega 2560 Rev3 – Technical Specifications*. Recuperado de https://www.arduino.cc  
+
+- Arduino. (s.f.). *EEPROM Library*. Recuperado de https://www.arduino.cc/reference/en/libraries/eeprom/  
+
+- Monk, S. (2017). *Programming Arduino: Getting Started with Sketches* (2nd ed.). McGraw-Hill Education.
+
+- Banzi, M., & Shiloh, M. (2022). *Getting Started with Arduino* (4th ed.). Maker Media.
+
+- Microchip Technology Inc. (s.f.). *ATmega2560 Datasheet*. Recuperado de https://www.microchip.com  
+
+- TowerPro. (s.f.). *SG90 Micro Servo Motor Datasheet*.
+
+- Hitachi. (s.f.). *HD44780U LCD Controller/Driver Datasheet*.
+
+- Axelson, J. (2015). *Serial Port Complete: Programming and Circuits for RS-232 and RS-485*. Lakeview Research.
+
+- Monk, S. (2015). *Practical Electronics for Inventors*. McGraw-Hill Education.
