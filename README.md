@@ -1,16 +1,17 @@
-MARKDOWN COMPLETO:
-[x] CARATULA 
-[x] INTRODUCCION 
-[x] OBJETIVOS
-[x] MARCO TEORICO
-[] EXPLICACION DETALLADA A SU VEZ LLEVA DIAGRAMAS DE FLUJO
-[] DESCRIPCION DE COMANDOS SERIALES CON SU TABLA
-[] EXPLICACION DE ARCHIVOS .org
-[x] TABLA DE COMPONENTES CON EXPECIFICACIONES TECNICAS Y TABLA DE PRESUPUESTO
-[] APORTES INDIVIDUALES
-[] ANALISIS DE RESULTADOS Y PRUEBAS REALIZADAS
-[x] CONCLUSIONES
-[x] BIBLIOGRAFIA
+## MARKDOWN COMPLETO
+
+- [x] Carátula
+- [x] Introducción
+- [x] Objetivos
+- [x] Marco Teórico
+- [ ] Explicación detallada del sistema (incluye diagramas de flujo)
+- [ ] Descripción de comandos seriales (con tabla)
+- [ ] Explicación de archivos `.org`
+- [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
+- [ ] Aportes individuales
+- [ ] Análisis de resultados y pruebas realizadas
+- [x] Conclusiones
+- [x] Bibliografía
 
 ---
 
