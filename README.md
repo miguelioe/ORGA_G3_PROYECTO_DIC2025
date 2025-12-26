@@ -249,7 +249,7 @@ Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad 
 | Nombre                          | Precio individual | Cantidad | Total       |
 |---------------------------------|-------------------|----------|-------------|
 | Arduino MEGA (genérico Steren)  | Q200.00           | 1        | Q200.00     |
-| Protoboard 830 pines            | Q79.00            | 1        | Q45.00      |
+| Protoboard 830 pines            | Q79.00            | 1        | Q79.00      |
 | Servo SG90                      | Q30.00            | 1        | Q30.00      |
 | Motor DC (5V pequeño)           | Q10.00            | 1        | Q10.00      |
 | LCD 16×2 I2C Display            | Q50.00            | 1        | Q50.00      |
@@ -257,8 +257,8 @@ Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad 
 | Cables protoboard (por metro)   | Q7.00             | 4        | Q28.00      |
 | LEDs                            | Q1.00             | 5        | Q5.00       |
 | Resistencias                    | Q1.50             | 5        | Q7.50       |
-| **Elementos extras/Pendientes** |                   |          |             |
-| **TOTAL FINAL**                 |                   |          | Q429.50     |
+| Materiales de maqueta           | Q60.50            | 1        | Q60.50      |
+| **TOTAL FINAL**                 |                   |          | Q490.00     |
 
 ---
 
