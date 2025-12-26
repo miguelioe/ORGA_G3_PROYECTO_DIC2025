@@ -116,6 +116,152 @@ La pantalla LCD 16x2 muestra el modo activo en tiempo real, permitiendo al usuar
 
 ---
 
+## Componentes y presupuesto
+
+
+### Arduino MEGA 2560 (Genérico Steren)
+
+El Arduino MEGA 2560 es una placa de desarrollo basada en el microcontrolador ATmega2560, diseñada para proyectos de mayor complejidad que requieren una gran cantidad de pines de entrada/salida y mayor capacidad de memoria. Es ideal para aplicaciones domóticas donde se integran múltiples actuadores y dispositivos de visualización.
+
+**Especificaciones técnicas:**
+- Microcontrolador: ATmega2560  
+- Voltaje de operación: 5 V  
+- Voltaje de alimentación recomendado: 7–12 V  
+- Pines digitales: 54 (15 con PWM)  
+- Entradas analógicas: 16  
+- Memoria Flash: 256 KB  
+- SRAM: 8 KB  
+- EEPROM: 4 KB  
+- Frecuencia de reloj: 16 MHz  
+
+En el proyecto, el Arduino MEGA actúa como el núcleo del sistema, coordinando la comunicación serial, el control de luces, motores, servomotor, pantalla LCD y el almacenamiento de estados en memoria EEPROM.
+
+---
+
+### Protoboard de 830 Pines
+
+La protoboard es un dispositivo de prototipado que permite realizar conexiones eléctricas sin necesidad de soldadura. Facilita el montaje, modificación y prueba de circuitos electrónicos de forma rápida y segura.
+
+**Características técnicas:**
+- Total de conexiones: 830 puntos  
+- Conexiones centrales: 630 puntos para inserción de componentes  
+- Líneas de alimentación:  
+  - 100 pines de positivo  
+  - 100 pines de negativo  
+
+En este proyecto, la protoboard se utiliza para interconectar el Arduino con los LEDs, resistencias, relé, motor DC y otros componentes, permitiendo una organización clara del circuito.
+
+---
+
+### Servomotor SG90
+
+El servomotor SG90 es un actuador de posicionamiento preciso ampliamente utilizado en proyectos de automatización y robótica. Permite controlar ángulos específicos mediante señales PWM generadas por el Arduino.
+
+**Especificaciones técnicas:**
+- Voltaje de operación: 4.8 V – 6 V  
+- Rango de giro: 0° a 180°  
+- Torque: aproximadamente 1.8 kg·cm a 4.8 V  
+- Velocidad: 0.1 s / 60°  
+- Peso: 9 g  
+- Tipo de control: señal PWM  
+
+En la maqueta, el SG90 se emplea para controlar la apertura y cierre de la puerta principal de la casa.
+
+---
+
+### Motor DC
+
+El motor de corriente continua (DC) es un actuador que transforma energía eléctrica en movimiento rotatorio continuo. Su velocidad depende del voltaje aplicado y no permite control de posición, únicamente de giro.
+
+**Características técnicas generales:**
+- Voltaje de operación común: 3 V – 12 V  
+- Tipo de movimiento: rotación continua  
+- Control: encendido/apagado o regulación por PWM  
+
+En el sistema desarrollado, el motor DC representa un ventilador ubicado en la sala del primer nivel de la maqueta.
+
+---
+
+### Pantalla LCD 16×2 con Interfaz I2C
+
+La pantalla LCD 16×2 permite mostrar información textual de forma clara. Al utilizar un adaptador I2C, se reduce significativamente la cantidad de pines necesarios para la comunicación con Arduino.
+
+**Especificaciones técnicas:**
+- Resolución: 16 caracteres × 2 líneas  
+- Interfaz: I2C (SDA y SCL)  
+- Voltaje de operación: 5 V  
+- Iluminación: retroiluminación LED  
+
+En el proyecto, la pantalla LCD muestra el estado actual de la casa (FIESTA, RELAJADO, NOCHE o DESPERTAR), brindando retroalimentación visual al usuario.
+
+---
+
+### Relé 5 V de 5 Pines (Low Trigger)
+
+El relé es un dispositivo electromecánico que permite controlar cargas de mayor voltaje o corriente utilizando una señal de bajo voltaje proveniente del Arduino.
+
+**Características técnicas:**
+- Voltaje de activación: 5 V DC  
+- Tipo de activación: Low Trigger (activo con nivel bajo)  
+- Terminales de carga: COM, NO (Normally Open), NC (Normally Closed)  
+
+Este componente permite aislar el circuito de control del Arduino de los dispositivos que requieren mayor potencia.
+
+---
+
+### Cables para Protoboard
+
+Los cables de conexión tipo Dupont se utilizan para enlazar eléctricamente el Arduino, la protoboard y los distintos módulos del sistema.
+
+**Características:**
+- Tipo: macho–macho, macho–hembra o hembra–hembra  
+- Paso estándar: 2.54 mm  
+- Uso: interconexión rápida y segura de componentes  
+
+---
+
+### LEDs
+
+Los diodos emisores de luz (LEDs) son componentes electrónicos que emiten luz al ser polarizados correctamente. En proyectos de automatización se emplean como indicadores visuales.
+
+**Características técnicas:**
+- Voltaje típico: 2 V – 3.3 V (según color)  
+- Corriente recomendada: 10–20 mA  
+
+En la maqueta, los LEDs representan la iluminación de cada ambiente de la casa.
+
+---
+
+### Resistencias
+
+Las resistencias son componentes pasivos que limitan el flujo de corriente dentro de un circuito, protegiendo dispositivos sensibles como los LEDs.
+
+**Valores comunes utilizados:**
+- 220 Ω para protección de LEDs  
+- 1 kΩ y 10 kΩ para divisores de voltaje o resistencias pull-up  
+
+Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad del sistema electrónico.
+
+---
+
+### Presupuesto
+
+| Nombre                          | Precio individual | Cantidad | Total       |
+|---------------------------------|-------------------|----------|-------------|
+| Arduino MEGA (genérico Steren)  | Q200.00           | 1        | Q200.00     |
+| Protoboard 830 pines            | Q45.00            | 1        | Q45.00      |
+| Servo SG90                      | Q30.00            | 1        | Q30.00      |
+| Motor DC (5V pequeño)           | Q10.00            | 1        | Q10.00      |
+| LCD 16×2 I2C Display            | Q50.00            | 1        | Q50.00      |
+| Relay 5V 5PIN Low Trigger       | Q20.00            | 1        | Q20.00      |
+| Cables protoboard (por metro)   | Q7.00             | 4        | Q28.00      |
+| LEDs                            | Q1.00             | 5        | Q5.00       |
+| Resistencias                    | Q1.50             | 5        | Q7.50       |
+| **Elementos extras/Pendientes** |                   |          |             |
+| **TOTAL FINAL**                 |                   |          | Q395.50     |
+
+---
+
 ## Conclusiones
 
 - Se logró desarrollar una maqueta funcional de casa inteligente con control independiente de iluminación por ambientes, cumpliendo con el objetivo de automatización residencial.
