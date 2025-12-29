@@ -13,8 +13,6 @@
 - [x] Conclusiones
 - [x] Bibliografía
 
-Prueba de Julio y Ema
-
 ---
 
 Universidad San Carlos de Guatemala
