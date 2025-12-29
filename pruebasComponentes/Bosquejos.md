@@ -177,8 +177,6 @@ void setup() {
 
   estadoMotor = EEPROM.read(0);
 
-  if (estadoMotor > 3) estadoMotor = 0;
-
   aplicarMotor();
 }
 
