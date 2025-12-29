@@ -149,15 +149,30 @@ void loop() {
 
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://wokwi.com/projects/450932545007138817)
 
-'''Union de Componentes, Primera Fase
+---
+'''Union de Componentes, Segunda Fase
+
+> Estas pruebas usan botones para simular la EEPROM  
+
+
     
     #include <Servo.h>
+    #include <Wire.h> 
+    #include <LiquidCrystal_I2C.h>
 
     #define pinServo 2
-    #define pinVelocidad 3
-    #define pinDireccion 4
-    #define pinPulsador 5
+    #define pinMotor 3
+    #define pinInterruptorMotor 4
+    #define pinInterruptorServo 5
+    #define pinL1 8
+    #define pinL2 9
+    #define pinL3 10
+    #define pinL4 11
+    #define pinL5 12
 
+    int cont = 0;
+    int contVentilador = 0;
+    int contPuerta = 0;
     // Variables para Ventilador
     int valorPot = 0;
     int velocidadVentilador = 0;
@@ -165,54 +180,93 @@ void loop() {
     Servo servoPuerta;
     bool abrirPuerta = false; // Angulo 0 false puerta cerrada
     int servoAngulo = 0;
-    unsigned long ultimoTiempo  = 0;
-    const unsigned long tiempoEspera  = 200; //Evitar rebotes mecanicos
-
+    // Variable para LCD
+    LiquidCrystal_I2C lcd(0x20, 16, 2);
 
 
     void setup(){
       Serial.begin(9600);
-      pinMode(pinVelocidad, OUTPUT);
-      pinMode(pinDireccion, OUTPUT);
-      pinMode(pinPulsador, INPUT);
+      pinMode(pinMotor, OUTPUT);
+      pinMode(pinInterruptorMotor, INPUT);
+      pinMode(pinInterruptorServo, INPUT);
       servoPuerta.attach(pinServo);
       servoPuerta.write(0);
       delay(1000);
-        }
 
-      void loop(){
-      //Control Puerta
-      int estadoPulsador = digitalRead( pinPulsador );// Leer estado actual del pulsador
-      if ( millis() - ultimoTiempo > tiempoEspera ) {
-      if( estadoPulsador == HIGH && !abrirPuerta ){
-      ultimoTiempo = millis();  // Actualizar tiempo
+    digitalWrite(pinL1, HIGH);
+    digitalWrite(pinL2, HIGH);
+    digitalWrite(pinL3, HIGH);
+    digitalWrite(pinL4, HIGH);
+    digitalWrite(pinL5, HIGH);
       
-      Serial.println( "Abriendo puerta..." );
-      servoAngulo = 90;
-      servoPuerta.write( servoAngulo );
-      abrirPuerta = true;
-      delay(300);   
-    } else if( estadoPulsador == HIGH && abrirPuerta ){
-      ultimoTiempo = millis();  // Actualizar tiempo
-      
-      Serial.println("Cerrando puerta...");
-      servoAngulo = 0;
-      servoPuerta.write( servoAngulo );
-      abrirPuerta = false;
-      delay(500);
+    lcd.init();
+    lcd.clear();
+    lcd.backlight();
+    
+    lcd.setCursor(0,0);
+    lcd.print(" Bienvenido");
+    delay(100);
+    lcd.setCursor(0,1);
+    lcd.print( " Listo para Iniciar" );
     }
-    }
-  
-    //Control Velocidad Ventilador
-    valorPot = analogRead(A0);
-    valorPot = map(valorPot, 0, 1023, 0, 255);
-  
-    if (valorPot == 0) { velocidadVentilador = 0; } 
-    else if (valorPot < 185) { velocidadVentilador = 150; } 
-    else { velocidadVentilador = 255; }
-    digitalWrite( pinDireccion, HIGH);
-    analogWrite( pinVelocidad, velocidadVentilador );
-    }
+
+    void loop(){
+      if(cont <= 20){
+        lcd.scrollDisplayLeft();
+        delay(100);
+        cont++;
+      }
+    
+    
+    //Control Puerta
+    int estadoServo = digitalRead( pinInterruptorServo );// Leer estado actual del interruptor
+      if( estadoServo == HIGH && !abrirPuerta ){
+        
+        Serial.println( "Abriendo puerta..." );
+        if(contPuerta != 1){
+          lcd.clear();
+          lcd.print( "Abriendo Puerta" );
+          contPuerta++;
+        }
+        servoAngulo = 90;
+        servoPuerta.write( servoAngulo );
+        delay(300);
+        abrirPuerta = true;   
+      } else if( estadoServo == LOW && abrirPuerta ){
+        Serial.println( "Cerrando puerta..." );
+        if(contPuerta != 0){
+        lcd.clear();
+        lcd.print( "Cerrando Puerta" );
+        delay(100);
+        contPuerta = 0;
+        }
+        servoAngulo = 0;
+        servoPuerta.write( servoAngulo );
+        delay(500);
+        abrirPuerta = false;
+      }
+    
+    
+    //Control Ventilador
+    int estadoMotor = digitalRead( pinInterruptorMotor );
+      Serial.println(estadoMotor);
+        if( estadoMotor == HIGH ){
+          digitalWrite(pinMotor, HIGH);
+          if(contVentilador != 1){
+            lcd.clear();
+            lcd.print( "Ventilador Encendido" );
+            contVentilador++;
+          }
+          delay(100);
+        }else{
+          digitalWrite(pinMotor, LOW);
+          if(contVentilador != 0){
+          lcd.clear();
+          lcd.print( "Ventilador Apagado" );
+          delay(100);
+          contVentilador = 0;
+          }
+        }
 '''<img width="1494" height="608" alt="Union de Componentes" src="https://github.com/user-attachments/assets/0d56795e-ff41-4459-a09a-a5749ab02e82" />
 https://www.tinkercad.com/things/hlgouVLsfX1-union-de-componentes
 
