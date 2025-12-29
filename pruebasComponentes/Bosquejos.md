@@ -227,7 +227,10 @@ void aplicarMotor() {
       break;
   }
 }
+```
+![Motor dc](../capturas/PruebaMotorDC.png)
 
+[Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://www.tinkercad.com/things/7qkBuMOths8-motor-dc-con-puente-h)
 
 '''Union de Componentes, Segunda Fase
 
