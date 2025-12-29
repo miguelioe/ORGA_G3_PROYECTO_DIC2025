@@ -150,6 +150,85 @@ void loop() {
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://wokwi.com/projects/450932545007138817)
 
 ---
+## Prueba de funcionamiento del Motor DC con L293D
+
+>Comandos para la EEPROM:  
+>FAN0= Apagar  
+>FAN1= Velocidad baja  
+>FAN2= Velocidad media  
+>FAN3= Velocidad alta  
+
+```Arduino
+#include <EEPROM.h>
+
+#define PIN_RELE 9
+
+// Variables 
+byte velocidadApagada = 0; 
+byte velocidadBaja = 85;
+byte velocidadMedia = 170;
+byte velocidadAlta = 255;
+
+int estadoMotor = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_RELE, OUTPUT);
+
+  estadoMotor = EEPROM.read(0);
+
+  if (estadoMotor > 3) estadoMotor = 0;
+
+  aplicarMotor();
+}
+
+void loop() {
+  if (Serial.available()) {
+    String termi = Serial.readStringUntil('\n'); //Guardar valor de terminal
+    termi.trim();
+    termi.toUpperCase();
+
+    if (termi == "FAN0") cambiarEstado(0);
+    else if (termi == "FAN1") cambiarEstado(1);
+    else if (termi == "FAN2") cambiarEstado(2);
+    else if (termi == "FAN3") cambiarEstado(3);
+    else cambiarEstado(0);
+  }
+  delay(10);
+}
+
+void cambiarEstado(int nuevo) {
+  estadoMotor = nuevo;
+  EEPROM.update(0, estadoMotor);  // Guardar 
+  aplicarMotor();
+  
+  Serial.print("FAN");
+  Serial.print(estadoMotor);
+  Serial.println(" guardado en EEPROM");
+}
+
+void aplicarMotor() {
+  switch (estadoMotor) {
+    case 0:  // FAN0
+      digitalWrite(PIN_RELE, HIGH);
+      Serial.println("MOTOR: APAGADO");
+      break;
+    case 1:  // FAN1
+      digitalWrite(PIN_RELE, LOW);
+      Serial.println("MOTOR: ENCENDIDO BAJO");
+      break;
+    case 2:  // FAN2
+      digitalWrite(PIN_RELE, LOW);
+      Serial.println("MOTOR: ENCENDIDO MEDIO");
+      break;
+    case 3:  // FAN3
+      digitalWrite(PIN_RELE, LOW);
+      Serial.println("MOTOR: ENCENDIDO ALTO");
+      break;
+  }
+}
+
+
 '''Union de Componentes, Segunda Fase
 
 > Estas pruebas usan botones para simular la EEPROM  
