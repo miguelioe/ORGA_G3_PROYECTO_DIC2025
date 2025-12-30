@@ -4,7 +4,7 @@
 - [x] Introducción
 - [x] Objetivos
 - [x] Marco Teórico
-- [ ] Explicación detallada del sistema (incluye diagramas de flujo)
+- [x] Explicación detallada del sistema (incluye diagramas de flujo)
 - [x] Descripción de comandos seriales (con tabla)
 - [x] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
@@ -117,6 +117,10 @@ Este guardado en la EEPROM se logra mediante el uso de la librería incluída de
 
 La pantalla LCD 16x2 muestra el modo activo en tiempo real, permitiendo al usuario conocer el estado actual del sistema.
 
+
+![Diagrama de flujo](/capturas/diagrama_flujo.png)
+
+>El diagrama de flujo muestra de manera simplificada el proceso desde que inicia el programa o se conecta el Arduino a la corriente hasta el procesamiento de los comandos.
 ---
 
 ## Componentes y presupuesto
