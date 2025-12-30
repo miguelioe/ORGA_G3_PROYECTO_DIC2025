@@ -231,12 +231,12 @@ void aplicarMotor() {
 
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://www.tinkercad.com/things/7qkBuMOths8-motor-dc-con-puente-h)
 
-'''Union de Componentes, Segunda Fase
+
+# Union de Componentes, Segunda Fase
 
 > Estas pruebas usan botones para simular la EEPROM  
 
-
-    
+```  
     #include <Servo.h>
     #include <Wire.h> 
     #include <LiquidCrystal_I2C.h>
@@ -348,8 +348,9 @@ void aplicarMotor() {
           contVentilador = 0;
           }
         }
-'''<img width="1494" height="608" alt="Union de Componentes" src="https://github.com/user-attachments/assets/0d56795e-ff41-4459-a09a-a5749ab02e82" />
-https://www.tinkercad.com/things/hlgouVLsfX1-union-de-componentes
+```
+<img width="1494" height="610" alt="Union de Componentes Fase Final" src="https://github.com/user-attachments/assets/e7e35fb8-a107-489d-baf0-a4a8d2a76c4e" />
+[https://www.tinkercad.com/things/hlgouVLsfX1-union-de-componentes](https://www.tinkercad.com/things/h0FTCla1Lwe/editel?sharecode=mTq7qzWr5xt4f_s4ksejkFeTj6Ktb6us_5swuHZ8ZWE)
 
 
 
