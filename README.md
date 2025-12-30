@@ -6,7 +6,7 @@
 - [x] Marco Teórico
 - [ ] Explicación detallada del sistema (incluye diagramas de flujo)
 - [ ] Descripción de comandos seriales (con tabla)
-- [ ] Explicación de archivos `.org`
+- [x] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
 - [ ] Aportes individuales
 - [ ] Análisis de resultados y pruebas realizadas
@@ -244,7 +244,185 @@ Las resistencias son componentes pasivos que limitan el flujo de corriente dentr
 Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad del sistema electrónico.
 
 ---
+###  Funcionamiento de archivos `.org`
+Los archivos con extensión `.org` son archivos de **texto plano** que funcionan como *archivos de configuración* para definir **escenas** (por ejemplo: `FIESTA`, `RELAJADO`, `NOCHE`, `DESPERTAR`).  
+La idea es separar **la lógica del Arduino** (firmware) de **la definición de la escena**, para que las escenas se puedan crear o modificar sin reprogramar el microcontrolador.
 
+
+
+#### ¿Qué contiene un archivo `.org`?
+
+Un `.org` tiene dos tipos de líneas:
+
+1) **Comentarios** (no se ejecutan)  
+2) **Pasos de escena** (sí se ejecutan, en orden)
+
+Ejemplo de estructura general:
+
+```text
+# Nombre de la escena
+# Comentarios opcionales
+AMBIENTE:ESTADO:DURACION:REPETICIONES
+AMBIENTE:ESTADO:DURACION:REPETICIONES
+```
+
+---
+
+#### Formato de cada paso (línea)
+
+Cada paso tiene 4 campos separados por `:` (dos puntos):
+
+| Campo | Valores permitidos | ¿Qué controla? | Ejemplo |
+|------|---------------------|----------------|---------|
+| `AMBIENTE` | `SALA`, `COMEDOR`, `COCINA`, `BAÑO`, `HABITACION` | Qué zona de la casa se afecta | `SALA` |
+| `ESTADO` | `ON`, `OFF` | Encender o apagar el LED del ambiente | `ON` |
+| `DURACION` | Entero positivo (ms) | Tiempo que se mantiene ese estado | `500` |
+| `REPETICIONES` | Entero positivo | Cuántas veces se repite ese paso | `20` |
+
+**Ejemplo de una línea válida:**
+
+```text
+SALA:ON:500:20
+```
+
+Interpretación: *La SALA se enciende por 500 ms y este paso se repite 20 veces.*
+
+---
+
+#### Reglas de interpretación (para que el Arduino no falle)
+
+- Las líneas que empiezan con `#` son **comentarios** → Arduino las ignora.
+- Las líneas vacías se ignoran.
+- El separador entre campos es `:`.
+- Los nombres de ambientes deben escribirse en **MAYÚSCULAS**.
+- Los pasos se ejecutan en el **orden** en que aparecen.
+- Límite recomendado: **máximo 50 pasos por escena** (ajustable según la EEPROM disponible).
+
+
+---
+
+#### Ejemplos listos de escenas `.org`
+
+##### `Fiesta.org`
+
+```text
+# Escena: FIESTA
+# Descripcion: Luces parpadeando rapidamente en patron alternado
+# Duracion total aproximada: 20 segundos
+
+SALA:ON:500:20
+COMEDOR:OFF:500:20
+COCINA:ON:300:30
+BAÑO:OFF:300:30
+HABITACION:ON:200:50
+```
+
+**Comportamiento esperado:** parpadeo dinámico y rápido, simulando ambiente de fiesta.
+
+---
+
+##### `Relajado.org`
+
+```text
+# Escena: RELAJADO
+# Descripcion: Encendido suave y progresivo con pocas luces
+# Ambiente de calma y descanso
+
+SALA:ON:3000:1
+HABITACION:ON:2000:1
+COMEDOR:OFF:2000:1
+COCINA:OFF:2000:1
+BAÑO:ON:3000:1
+```
+
+**Comportamiento esperado:** cambios lentos y pocas luces encendidas.
+
+---
+
+##### `Cascada.org`
+
+```text
+# ==============================
+# ESCENA: CASCADA
+# Descripcion: LUZ DE ARRIBA HACIA ABAJO
+# ==============================
+LOAD_SCENE
+HABITACION:ON:3000:1
+COCINA:ON:2000:1
+COMEDOR:ON:2000:1
+SALA:ON:2000:1
+BANO:ON:3000:1
+HABITACION:OFF:3000:1
+COCINA:OFF:2000:1
+COMEDOR:OFF:2000:1
+SALA:OFF:2000:1
+BANO:OFF:3000:1
+END_LOAD CASCADA
+```
+
+**Comportamiento esperado:** iluminación mínima (solo lo necesario).
+
+---
+
+##### `Despertar.org` (secuencia un poco más compleja)
+
+```text
+# Escena: DESPERTAR
+# Descripcion: Simulacion de amanecer progresivo
+# Enciende luces gradualmente de habitacion hacia areas comunes
+
+HABITACION:ON:2000:1
+BAÑO:ON:1500:1
+COCINA:ON:1000:1
+COMEDOR:ON:1000:1
+SALA:ON:1000:1
+HABITACION:OFF:500:5
+HABITACION:ON:500:5
+```
+
+**Comportamiento esperado:** encendido progresivo + parpadeo final en habitación como “activación completa”.
+
+---
+
+#### Proceso de carga por Serial (paso a paso)
+
+**Opción 1: Manual (Monitor Serial de Arduino IDE)**
+
+1. Abrir el Monitor Serial a **9600 baudios**.
+2. Enviar el comando:
+   ```text
+   LOAD_SCENE
+   ```
+3. Enviar el contenido del archivo `.org` (línea por línea o todo junto).
+4. Finalizar con:
+   ```text
+   END_LOAD NOMBRE_ESCENA
+   ```
+   Ejemplo:
+   ```text
+   END_LOAD FIESTA
+   ```
+5. El Arduino confirma que la escena fue guardada (y si aplica, almacenada en EEPROM).
+
+---
+
+#### Ejemplo de sesión (para evidencias / capturas)
+
+```text
+> LOAD_SCENE
+< MODO CARGA ACTIVADO. Envie lineas. Finalice con END_LOAD; LCD: Cargando...
+
+> SALA:ON:500:20
+< PASO OK: SALA ON 500ms x20
+
+> COCINA:ON:300:30
+< PASO OK: COCINA ON 300ms x30
+
+> END_LOAD FIESTA
+< ESCENA FIESTA GUARDADA; LCD: Guardado: Fiesta
+```
+
+---
 ### Presupuesto
 
 | Nombre                          | Precio individual | Cantidad | Total       |
