@@ -340,29 +340,27 @@ void guardarEscenaEnEEPROM(String nombre) {
 
   int slotIndex = -1; 
 
-  // 1. ¿Ya existe una escena con este nombre? Si sí, la sobrescribimos
+  //Si existe una escena con este nombre, la sobrescribimos
   for (int i = 0; i < numEscenas; i++) {
     String n = leerNombreEscena(i);
     if (n == nombre) {
       slotIndex = i;
-      break;  // ¡Encontrada! Usaremos este slot
+      break;
     }
   }
 
-  // 2. Si no existe y tenemos espacio, creamos un nuevo slot
+  //Si no existe y tenemos espacio, creamos un nuevo slot
   if (slotIndex == -1) {
     if (numEscenas < MAX_ESCENAS) {
       slotIndex = numEscenas;  // El próximo slot disponible
       numEscenas++;  // Ahora tenemos una escena más
       EEPROM.update(DIR_NUM_ESCENAS, numEscenas);
     } else {
-      // ¡Oh no! No hay más espacio
       Serial.println("MEMORIA LLENA (Max 3 escenas). Borre usando ERASE_SCENES.");
       return;
     }
   }
 
-  // ¡Perfecto! Ahora guardamos la escena en su slot correspondiente
   int direccionBase = DIR_BASE_ESCENAS + (slotIndex * BYTES_POR_ESCENA);
 
   // Guardamos el nombre (primeros 10 bytes del slot)
@@ -395,9 +393,7 @@ bool intentarCargarEscenaDeEEPROM(String nombre) {
 
   // Buscamos en todas las escenas guardadas
   for (int i = 0; i < num; i++) {
-    // ¿Esta escena tiene el nombre que buscamos?
     if (leerNombreEscena(i) == nombre) {
-      // ¡Sí! Cargamos los datos a la RAM
       cargarSlotAMemoria(i);
       
       // Actualizamos las variables globales
@@ -417,12 +413,12 @@ bool intentarCargarEscenaDeEEPROM(String nombre) {
       // Actualizamos la pantalla LCD
       actualizarLCD();
       
-      // Ejecutamos el primer paso inmediatamente (sin esperar)
+      // Ejecutamos el primer paso
       ejecutarPasoActual(); 
-      return true;  // ¡Éxito!
+      return true; 
     }
   }
-  return false;  // No encontramos ninguna escena con ese nombre
+  return false;
 }
 
 void cargarSlotAMemoria(int slot) {
@@ -458,16 +454,16 @@ String leerNombreEscena(int slot) {
 }
 
 void recuperarEstadoSistema() {
-  // 1. Ventilador: ¿cómo estaba antes de apagarse?
+  //Ventilador
   estadoFan = EEPROM.read(DIR_FAN_STATE);
-  if (estadoFan > 3) estadoFan = 0;  // Si es un valor inválido, lo ponemos en 0 (apagado)
-  aplicarMotor();  // Aplicamos el estado al relay
+  if (estadoFan > 3) estadoFan = 0; 
+  aplicarMotor();
 
-  // 2. Puerta: ¿abierta o cerrada?
+  //Puerta
   puertaAbierta = (EEPROM.read(DIR_DOOR_STATE) == 1);
   puertaServo.write(puertaAbierta ? 90 : 0);  // 90° = abierta, 0° = cerrada
 
-  // 3. ¿Había una escena activa antes de apagarse?
+  //Escena
   if (EEPROM.read(DIR_LAST_SCENE_ACTIVE) == 1) {
     // Leemos el nombre de la última escena activa
     String lastScene = "";
@@ -477,21 +473,18 @@ void recuperarEstadoSistema() {
     }
     Serial.println("Recuperando escena: " + lastScene);
     
-    // Intentamos reactivar esa escena
     intentarCargarEscenaDeEEPROM(lastScene);
   } else {
-    // Si no había escena activa, solo actualizamos la LCD
     actualizarLCD();
   }
 }
 
 void borrarEEPROM() {
-  // ¡CUIDADO! Esto borra TODO lo guardado en la EEPROM
   for (int i = 0; i < EEPROM.length(); i++) {
-    EEPROM.update(i, 255);  // 255 es el valor "de fábrica" (no inicializado)
+    EEPROM.update(i, 255);  // 255 es el valor no inicializado
   }
   
-  // Reiniciamos los contadores importantes
+  // Reiniciamos los contadores
   EEPROM.update(DIR_NUM_ESCENAS, 0);
   EEPROM.update(DIR_LAST_SCENE_ACTIVE, 0);
   Serial.println("EEPROM BORRADA COMPLETAMENTE.");
