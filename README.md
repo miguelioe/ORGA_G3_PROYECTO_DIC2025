@@ -5,7 +5,7 @@
 - [x] Objetivos
 - [x] Marco Teórico
 - [ ] Explicación detallada del sistema (incluye diagramas de flujo)
-- [ ] Descripción de comandos seriales (con tabla)
+- [x] Descripción de comandos seriales (con tabla)
 - [x] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
 - [ ] Aportes individuales
@@ -242,6 +242,157 @@ Las resistencias son componentes pasivos que limitan el flujo de corriente dentr
 - 1 kΩ y 10 kΩ para divisores de voltaje o resistencias pull-up  
 
 Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad del sistema electrónico.
+
+---
+
+## Descripción de comandos seriales 
+
+
+### Convenciones del protocolo
+
+- Los comandos se envían como texto (ej. `L1ON`, `FAN2`, `DOOR`).
+- No se distingue entre “Enter” o “Enviar línea”: se recomienda enviar con salto de línea (`\n`).
+- Algunos comandos admiten variantes (por ejemplo `L1` o `L1ON` hacen lo mismo).
+- Los comandos con parámetros se escriben en una sola línea:
+  - `SHOW_SCENE FIESTA`
+  - `END_LOAD FIESTA`
+
+---
+
+### Tabla de comandos seriales
+
+
+<details>
+<summary><b>Ver tabla completa de comandos</b></summary>
+
+#### 1) Control de iluminación por ambiente
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `L1` / `L1ON` | Enciende LED de **SALA** | `SALA: ON` |
+| `L1OFF` | Apaga LED de **SALA** | `SALA: OFF` |
+| `L2` / `L2ON` | Enciende LED de **COMEDOR** | `COMEDOR: ON` |
+| `L2OFF` | Apaga LED de **COMEDOR** | `COMEDOR: OFF` |
+| `L3` / `L3ON` | Enciende LED de **COCINA** | `COCINA: ON` |
+| `L3OFF` | Apaga LED de **COCINA** | `COCINA: OFF` |
+| `L4` / `L4ON` | Enciende LED de **BAÑO** | `BAÑO: ON` |
+| `L4OFF` | Apaga LED de **BAÑO** | `BAÑO: OFF` |
+| `L5` / `L5ON` | Enciende LED de **HABITACION** | `HABITACION: ON` |
+| `L5OFF` | Apaga LED de **HABITACION** | `HABITACION: OFF` |
+| `ALLON` | Enciende **todos** los LEDs | `TODAS LAS LUCES: ON` |
+| `ALLOFF` | Apaga **todos** los LEDs | `TODAS LAS LUCES: OFF` |
+
+---
+
+#### 2) Control de ventilador (motor DC por PWM)
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `FAN0` | Ventilador **apagado** | `VENTILADOR: OFF` |
+| `FAN1` | Velocidad **baja** | `VENTILADOR: BAJO` |
+| `FAN2` | Velocidad **media** | `VENTILADOR: MEDIO` |
+| `FAN3` | Velocidad **alta** | `VENTILADOR: ALTO` |
+
+> Nota: Los valores PWM típicos pueden ser (ejemplo) `FAN1≈85`, `FAN2≈170`, `FAN3≈255` (ajustable según tu código).
+
+---
+
+#### 3) Control de puerta (servomotor)
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `DOOR` | Alterna (toggle) **abrir/cerrar** | Si estaba cerrada → `PUERTA: ABIERTA` / si estaba abierta → `PUERTA: CERRADA` |
+| `DOOROPEN` | Abre la puerta (forzado) | `PUERTA: ABIERTA` |
+| `DOORCLOSE` | Cierra la puerta (forzado) | `PUERTA: CERRADA` |
+
+> Recomendación: manejar posiciones típicas del servo (ej. `0°` cerrado, `90°` abierto).
+
+---
+
+#### 4) Activación rápida de escenas
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `FIESTA` | Ejecuta escena **FIESTA** guardada | `ESCENA ACTIVA: FIESTA` |
+| `RELAX` | Ejecuta escena **RELAJADO** guardada | `ESCENA ACTIVA: RELAX` |
+| `NIGHT` | Ejecuta escena **NOCHE** guardada | `ESCENA ACTIVA: NOCHE` |
+| `STOP` | Detiene la escena en ejecución | `ESCENA DETENIDA` |
+
+---
+
+#### 5) Gestión de escenas desde archivos `.org`
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `LOAD_SCENE` | Activa modo de carga de escena | `MODO CARGA ACTIVADO. Envie lineas. Finalice con END_LOAD` |
+| *(líneas .org)* | Envía cada paso del archivo `.org` | `PASO OK: ...` o `ERROR: formato incorrecto` |
+| `END_LOAD <NOMBRE>` | Finaliza y guarda escena con nombre | `ESCENA <NOMBRE> GUARDADA` |
+| `LIST_SCENES` | Lista escenas guardadas | `ESCENAS: FIESTA, RELAX, NIGHT` o `SIN ESCENAS` |
+| `SHOW_SCENE <NOMBRE>` | Muestra configuración de una escena | Imprime la lista de pasos por Serial |
+| `ERASE_SCENES` | Borra todas las escenas guardadas | `TODAS LAS ESCENAS BORRADAS` |
+
+**Formato de líneas `.org` (pasos de escena):**
+
+```text
+AMBIENTE:ESTADO:DURACION:REPETICIONES
+```
+
+Ejemplo:
+
+```text
+SALA:ON:500:20
+```
+
+---
+
+#### 6) Comandos de consulta y sistema
+
+| Comando | Función | Respuesta esperada (ejemplo) |
+|--------|---------|------------------------------|
+| `STATUS` | Muestra estado completo | LEDs, fan, puerta y escena actual |
+| `RESET` | Reinicia estado a valores iniciales | Luces OFF, `FAN0`, puerta cerrada |
+
+
+</details>
+
+---
+
+### Ejemplo de uso (sesión típica)
+
+```text
+> VERSION
+< Casa Dic 2025
+
+> ALLON
+< TODAS LAS LUCES: ON
+
+> FAN2
+< VENTILADOR: MEDIO
+
+> DOOR
+< PUERTA: ABIERTA
+
+> STATUS
+< SALA:ON
+< COMEDOR:ON
+< COCINA:ON
+< BAÑO:ON
+< HAB:ON
+< FAN:MEDIO
+< PUERTA:ABIERTA
+< ESCENA:MANUAL
+```
+
+---
+
+### Manejo de errores 
+
+- Comando desconocido:
+  - `ERROR: comando no reconocido`
+- Formato inválido en carga `.org`:
+  - `ERROR: formato incorrecto (use AMBIENTE:ESTADO:DURACION:REPETICIONES)`
+- Escena inexistente:
+  - `ERROR: escena no encontrada`
 
 ---
 ###  Funcionamiento de archivos `.org`
