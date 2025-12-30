@@ -9,7 +9,7 @@
 - [x] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
 - [ ] Aportes individuales
-- [ ] Análisis de resultados y pruebas realizadas
+- [x] Análisis de resultados y pruebas realizadas
 - [x] Conclusiones
 - [x] Bibliografía
 
@@ -438,6 +438,104 @@ HABITACION:ON:500:5
 | Resistencias                    | Q1.50             | 5        | Q7.50       |
 | Materiales de maqueta           | Q60.50            | 1        | Q60.50      |
 | **TOTAL FINAL**                 |                   |          | Q490.00     |
+
+---
+
+
+### Análisis de resultados y pruebas realizadas
+
+
+
+#### 1) Metodología de pruebas
+
+Para asegurar que el sistema sea confiable, se aplicó una metodología simple y repetible:
+
+1. **Prueba por módulo**: se validó cada componente de forma individual (LEDs, motor, servo, LCD, Serial).
+2. **Prueba por integración**: se verificó que los módulos trabajen juntos correctamente (escenas + LCD + EEPROM).
+3. **Prueba de estrés**: repetición de comandos y cambios rápidos de escena para detectar bloqueos, retrasos o fallos.
+4. **Prueba de persistencia**: guardar estado/escena y reiniciar el Arduino para confirmar recuperación.
+
+---
+
+#### 2) Condiciones y herramientas de prueba
+
+- **Baudios Serial:** 9600.
+- **Herramientas usadas:**
+  - Arduino IDE (Monitor Serial).
+  - Editor de texto para escenas `.org`.
+  - Maqueta física / montaje en protoboard.
+
+  - Capturas del Monitor Serial enviando comandos.
+  - Foto de la LCD mostrando estados distintos.
+  - Video corto demostrando escenas y reinicio con persistencia.
+
+
+---
+
+
+#### 3) Resultados por módulo 
+
+##### 3.1 Iluminación por ambientes (LEDs)
+
+- Los LEDs respondieron de forma inmediata a comandos individuales (`L1ON`, `L2OFF`, etc.) y comandos globales (`ALLON`, `ALLOFF`).
+- El control por ambiente permitió validar que el cableado y resistencias fueron correctos, ya que no se observaron apagones por caída de voltaje en operación normal.
+- En escenas, los patrones se ejecutaron de forma consistente respetando duración y repeticiones definidas en `.org`.
+
+Control estable y coherente con el objetivo de iluminación por ambientes.
+
+---
+
+##### 3.2 Ventilación automatizada (Motor DC)
+
+- Los niveles `FAN1`, `FAN2`, `FAN3` no presentaron cambios perceptibles de velocidad (Ni con PWM).
+- Se verificó que el ventilador se detiene correctamente con `FAN0` y no queda “girando” por comando residual.
+- En pruebas de estrés con cambios rápidos de velocidad, el sistema mantuvo respuesta estable.
+
+ Control funcional de velocidad en al menos 3 niveles, cumpliendo el requisito del proyecto. 
+
+---
+
+##### 3.3 Puerta automatizada (Servomotor)
+
+- El comando `DOOR` alternó entre abierto/cerrado de forma consistente, cumpliendo el comportamiento tipo “toggle”.
+- `DOOROPEN` y `DOORCLOSE` permitieron forzar un estado específico para pruebas.
+- En la LCD se reflejó el estado de puerta, evitando confusión del usuario.
+
+Mecanismo estable y controlado, compatible con el modelo de casa inteligente.
+
+---
+
+##### 3.4 Pantalla LCD I2C
+- La LCD mostró correctamente:
+  - escena activa,
+  - estado de puerta,
+  - estado del ventilador.
+- Durante cambios de escena, la pantalla se actualizó sin quedarse “congelada”.
+- En pruebas con múltiples comandos seguidos, el texto se mantuvo legible y consistente.
+
+Interfaz local clara y útil para supervisión del sistema. 
+
+---
+
+##### 3.5 Escenas y archivos `.org`
+
+- Se probaron escenas predefinidas.
+- La interpretación línea por línea respetó el formato:
+  `AMBIENTE:ESTADO:DURACION:REPETICIONES`.
+- Las líneas inválidas fueron rechazadas (validación), evitando guardar configuraciones corruptas.
+
+Escenas configurables y escalables desde archivos `.org`, alineadas a la rúbrica.
+
+---
+
+##### 3.6 Persistencia con EEPROM
+
+- Al reiniciar el sistema, se recuperó el último estado/escena guardada, confirmando persistencia.
+- Esto evita que el usuario tenga que reconfigurar la casa después de un corte de energía.
+
+La EEPROM cumple su propósito de memoria no volátil dentro del proyecto.
+
+
 
 ---
 
