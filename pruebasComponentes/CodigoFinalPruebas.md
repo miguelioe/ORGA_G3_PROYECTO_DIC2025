@@ -11,14 +11,14 @@
 #include <Servo.h>
 #include <EEPROM.h>
 
-// ********** DEFINIENDO LOS PINES (nuestros "cables de control") **********
+// ********** DEFINIENDO LOS PINES **********
 const int PIN_SALA = 2;
 const int PIN_COMEDOR = 3;
 const int PIN_COCINA = 4;
 const int PIN_BANO = 5;
 const int PIN_HAB = 6;
 const int PIN_BOTON = 7;    
-const int PIN_FAN = 9;      // Ahora va a un RELAY, no a PWM
+const int PIN_FAN = 9;      // Digital
 const int PIN_SERVO = 10; 
 
 // ********** VARIABLES PARA EL BOTÓN **********
@@ -37,7 +37,7 @@ int estadoFan = 0;                   // 0 = APAGADO | 1, 2 y 3 = ENCENDIDO (bajo
 bool puertaAbierta = false;          // ¿La puerta está abierta? true = sí, false = no
 String nombreEscenaActual = "Manual"; // Qué estamos haciendo ahora: "Manual" o el nombre de una escena
 bool ejecutandoEscena = false;  
-String firmwareVersion = "Casa Dic 2025 - Relay";  // Para saber qué versión estamos usando
+String firmwareVersion = "Casa Dic 2025 - Relay";
 
 // ********** MAPA DE LA MEMORIA EEPROM **********
 // Las primeras direcciones (0-10) guardan el estado general del sistema
@@ -497,8 +497,6 @@ void borrarEEPROM() {
   Serial.println("EEPROM BORRADA COMPLETAMENTE.");
 }
 
-// ********** FUNCIONES AUXILIARES (nuestras "herramientas" de trabajo) **********
-
 void setLuz(int pin, bool estado, String nombre) {
   // Cualquier comando manual detiene la escena automática
   detenerEscena();
@@ -529,14 +527,14 @@ void setVentilador(int nuevoEstado) {
   
   // Actualizamos el estado en memoria
   estadoFan = nuevoEstado;
-  EEPROM.update(DIR_FAN_STATE, estadoFan);  // ¡Guardamos inmediatamente en EEPROM!
+  EEPROM.update(DIR_FAN_STATE, estadoFan); 
   aplicarMotor();  // Aplicamos el cambio al relay
   
   Serial.print("FAN");
   Serial.print(estadoFan);
   Serial.println(" guardado en EEPROM");
   
-  actualizarLCD();  // Mostramos el cambio en la pantalla
+  actualizarLCD(); 
 }
 
 void aplicarMotor() {
@@ -574,7 +572,7 @@ void setPuerta(bool abierta) {
   
   Serial.println(abierta ? "PUERTA: ABIERTA" : "PUERTA: CERRADA");
   
-  actualizarLCD();  // Mostramos el cambio en la pantalla
+  actualizarLCD(); 
 }
 
 void togglePuerta() {
@@ -590,7 +588,7 @@ int obtenerPinDeNombre(String nombre) {
   if (nombre == "COCINA") return PIN_COCINA;
   if (nombre == "BANO" || nombre == "BAÑO") return PIN_BANO;
   if (nombre == "HABITACION" || nombre == "HAB") return PIN_HAB;
-  return -1;  // -1 significa "no encontrado"
+  return -1; 
 }
 
 void actualizarLCD() {
