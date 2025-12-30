@@ -3,9 +3,6 @@
 ```Arduino
 /**
  * PROYECTO: Casa Domotizada | PROYECTO DE VAQUEROS ORGA 2025
- * Este es el cerebro de nuestra casa inteligente.
- * Se encarga de controlar luces, ventilador, puerta y ejecutar escenas automáticas.
- * Lo bueno: guarda todo en memoria (EEPROM) así que no se olvida ni después de un apagón.
  * NOTA: Ahora el ventilador usa un relay, no PWM. El motor DC tiene su propia batería.
  */
 
@@ -14,107 +11,99 @@
 #include <Servo.h>
 #include <EEPROM.h>
 
-// ********** DEFINIENDO LOS PINES (nuestros "cables de control") **********
+// ********** DEFINIENDO LOS PINES **********
 const int PIN_SALA = 2;
 const int PIN_COMEDOR = 3;
 const int PIN_COCINA = 4;
 const int PIN_BANO = 5;
 const int PIN_HAB = 6;
-const int PIN_BOTON = 7;    // El botón físico para la puerta
-const int PIN_FAN = 9;      // Ahora va a un RELAY, no a PWM
-const int PIN_SERVO = 10;   // El servomotor que mueve la puerta
+const int PIN_BOTON = 7;    
+const int PIN_FAN = 9;      // Digital
+const int PIN_SERVO = 10; 
 
-// ********** VARIABLES PARA EL BOTÓN (para evitar que haga cosas raras con el rebote) **********
+// ********** VARIABLES PARA EL BOTÓN **********
 int estadoBotonActual;
 int ultimoEstadoBoton = LOW;
 unsigned long ultimoTiempoRebote = 0;
 unsigned long delayRebote = 50;  // Esperamos 50ms para estar seguros de que el botón está realmente presionado
 
-// ********** NUESTROS "ASISTENTES" (objetos que hacen el trabajo pesado) **********
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // La pantallita LCD con conexión I2C
+// ********** OBJETOS **********
+LiquidCrystal_I2C lcd(0x27, 16, 2);  //LCD con conexión I2C
 Servo puertaServo;                    // El objeto que controla el servo de la puerta
 
-// ********** VARIABLES GLOBALES (el "estado de ánimo" de la casa) **********
+// ********** VARIABLES GLOBALES **********
 String comandoSerial = "";           // Lo que recibimos por el monitor serial
 int estadoFan = 0;                   // 0 = APAGADO | 1, 2 y 3 = ENCENDIDO (bajo, medio, alto)
 bool puertaAbierta = false;          // ¿La puerta está abierta? true = sí, false = no
 String nombreEscenaActual = "Manual"; // Qué estamos haciendo ahora: "Manual" o el nombre de una escena
-bool ejecutandoEscena = false;       // ¿Está corriendo una escena automática?
-String firmwareVersion = "Casa Dic 2025 - Relay";  // Para saber qué versión estamos usando
+bool ejecutandoEscena = false;  
+String firmwareVersion = "Casa Dic 2025 - Relay";
 
-// ********** MAPA DE LA MEMORIA EEPROM (como un archivador de 1000 cajones) **********
-// Los primeros cajones (0-10) guardan el estado general del sistema
+// ********** MAPA DE LA MEMORIA EEPROM **********
+// Las primeras direcciones (0-10) guardan el estado general del sistema
 const int DIR_FAN_STATE = 0;         // Guarda 0-3 (los estados del ventilador)
 const int DIR_DOOR_STATE = 1;        // Guarda si la puerta está abierta (1) o cerrada (0)
 const int DIR_LAST_SCENE_ACTIVE = 2; // ¿Había una escena activa antes de apagarse? 1=sí, 0=no
 
-// Cajones 11-30: El nombre de la última escena activa (para retomar donde íbamos)
+// Direcciones 11-30: El nombre de la última escena activa
 const int DIR_LAST_SCENE_NAME = 11;
 
-// Cajón 50: Cuántas escenas tenemos guardadas
+// Dirección 50: Cuántas escenas tenemos guardadas
 const int DIR_NUM_ESCENAS = 50;
 
-// Cajones 100 en adelante: Aquí guardamos las escenas completas
-// Tenemos espacio para 3 escenas máximo, cada una con su propio espacio
+// Direcciones 100 en adelante: Aquí se guardan las escenas completas
 const int MAX_ESCENAS = 3;
-const int BYTES_POR_ESCENA = 250;    // Cada escena ocupa hasta 250 bytes (50 pasos × 5 bytes)
-const int DIR_BASE_ESCENAS = 100;    // Aquí empieza el primer espacio para escenas
+const int BYTES_POR_ESCENA = 250;
+const int DIR_BASE_ESCENAS = 100;
 
-// ********** ESTRUCTURA DE UN "PASO" DE ESCENA (como una instrucción en una receta) **********
+// ********** ESTRUCTURA DE UN PASO **********
 struct PasoEscena {
-  byte pin;               // Qué luz o dispositivo (1 byte)
-  bool estado;            // Encendido o apagado (1 byte)
-  unsigned int duracion;  // Cuánto tiempo dura este paso, en milisegundos (2 bytes)
-  byte repeticiones;      // Cuántas veces repetir este paso (1 byte)
+  byte pin;               
+  bool estado;            
+  unsigned int duracion;  
+  byte repeticiones;      
 };
 
-// ********** BUFFER PARA TRABAJAR CON ESCENAS (nuestra "mesa de trabajo") **********
+// ********** BUFFER PARA TRABAJAR CON ESCENAS **********
 PasoEscena bufferEscena[50];  // Aquí cargamos la escena que vamos a ejecutar o guardar
 int pasosBufferCount = 0;     // Cuántos pasos tenemos actualmente en el buffer
 
-// ********** VARIABLES PARA CONTROLAR EL TIEMPO (sin usar delay, para no "congelar" el sistema) **********
-int pasoIndex = 0;               // Qué paso de la escena estamos ejecutando
-unsigned long tiempoInicioPaso = 0;  // Cuándo empezó el paso actual
-int repeticionCount = 0;         // Cuántas veces hemos repetido el paso actual
+// ********** VARIABLES PARA CONTROLAR EL TIEMPO **********
+int pasoIndex = 0;               
+unsigned long tiempoInicioPaso = 0; 
+int repeticionCount = 0;         
 bool modoCarga = false;          // ¿Estamos recibiendo un archivo .org? true = sí
 
-// ********** SETUP (lo que hace la casa al despertarse) **********
+// ********** SETUP **********
 void setup() {
-  Serial.begin(9600);  // Abrimos la comunicación con la computadora
-
-  // Configuramos todos los pines como salidas (excepto el botón)
+  Serial.begin(9600);  
   pinMode(PIN_SALA, OUTPUT);
   pinMode(PIN_COMEDOR, OUTPUT);
   pinMode(PIN_COCINA, OUTPUT);
   pinMode(PIN_BANO, OUTPUT);
   pinMode(PIN_HAB, OUTPUT);
-  pinMode(PIN_FAN, OUTPUT);  // ¡Importante! Ahora es un relay, pero sigue siendo salida
-  pinMode(PIN_BOTON, INPUT); // El botón es entrada
-  
-  // Inicializamos los periféricos (les damos la mano para que empiecen a trabajar)
-  puertaServo.attach(PIN_SERVO);  // "Hola servo, tú controlarás la puerta"
-  lcd.init();                     // "Hola LCD, prepárate"
-  lcd.backlight();                // Encendemos la luz de fondo de la LCD
+  pinMode(PIN_FAN, OUTPUT);
+  pinMode(PIN_BOTON, INPUT); 
 
-  // Mostramos un mensaje de bienvenida en la pantalla
+  // Inicializamos los componentes
+  puertaServo.attach(PIN_SERVO); 
+  lcd.init();                  
+  lcd.backlight();              
+
   lcd.setCursor(0, 0);
   lcd.print("Iniciando...");
-  delay(1000);  // Una pausa dramática para que se lea el mensaje
+  delay(1000); 
 
-  // Recuperamos cómo estaba todo antes de apagarnos (¡la casa tiene memoria!)
   recuperarEstadoSistema();
 
-  // Listo para recibir órdenes
-  Serial.println("--- SISTEMA LISTO (Modo Relay) ---");
+  Serial.println("--- SISTEMA LISTO ---");
   Serial.println("Escribe HELP para ver comandos.");
 }
 
-// ********** LOOP PRINCIPAL (lo que hace la casa todo el tiempo) **********
+// ********** LOOP PRINCIPAL **********
 void loop() {
-  // Primero, revisamos si alguien presionó el botón físico
-  leerBotonFisico();
   
-  // 1. ¿Nos están enviando comandos por el puerto serial?
+  leerBotonFisico();
   if (Serial.available() > 0) {
     String lectura = Serial.readStringUntil('\n');
     lectura.trim();
@@ -136,7 +125,7 @@ void loop() {
   }
 }
 
-// ********** FUNCIÓN PARA LEER EL BOTÓN FÍSICO (con protección contra rebotes) **********
+// ********** FUNCIÓN PARA LEER EL BOTÓN FÍSICO **********
 void leerBotonFisico() {
   int lectura = digitalRead(PIN_BOTON);
 
@@ -163,13 +152,11 @@ void leerBotonFisico() {
   ultimoEstadoBoton = lectura;
 }
 
-// ********** PROCESAMIENTO DE COMANDOS (el "traductor" de lo que escribimos) **********
+// ********** PROCESAMIENTO DE COMANDOS **********
 void procesarComando(String cmd) {
-  // --- Ayuda: Mostramos todos los comandos disponibles ---
   if (cmd == "HELP") {
     imprimirAyuda();
   }
-  // --- Control Manual de Luces: Encendemos/apagamos ambientes específicos ---
   else if (cmd == "L1" || cmd == "L1ON")
     setLuz(PIN_SALA, true, "SALA");
   else if (cmd == "L1OFF") setLuz(PIN_SALA, false, "SALA");
@@ -213,19 +200,16 @@ void procesarComando(String cmd) {
   } else if (cmd == "STATUS") {
     mostrarStatus();
   }
-  // --- Si no es un comando conocido, quizás sea el nombre de una escena guardada ---
+  
   else {
-    // Buscamos en la memoria si existe una escena con ese nombre
     if (intentarCargarEscenaDeEEPROM(cmd)) {
-      // ¡Encontrada! La función ya se encarga de activarla
     } else {
-      // Si no la encontramos, avisamos que no entendimos el comando
       Serial.println("COMANDO DESCONOCIDO O ESCENA NO ENCONTRADA.");
     }
   }
 }
 
-// ********** GESTIÓN DE ESCENAS (el "director de orquesta" de las secuencias) **********
+// ********** GESTIÓN DE ESCENAS **********
 
 void manejarLogicaEscena() {
   // Primero, chequeamos si hay pasos para ejecutar
@@ -236,15 +220,11 @@ void manejarLogicaEscena() {
 
   unsigned long tiempoActual = millis();
 
-  // ¿Ya pasó el tiempo que debía durar este paso?
   if (tiempoActual - tiempoInicioPaso >= bufferEscena[pasoIndex].duracion) {
-    // ¡Sí! Pasamos al siguiente paso
     
-    pasoIndex++;  // Siguiente instrucción en la receta
-
-    // Si llegamos al final de los pasos...
+    pasoIndex++;  // Siguiente instrucción
     if (pasoIndex >= pasosBufferCount) {
-      // ...volvemos al inicio (las escenas se repiten en bucle)
+      //volvemos al inicio
       pasoIndex = 0;
     }
 
@@ -265,22 +245,21 @@ void ejecutarPasoActual() {
 }
 
 void detenerEscena() {
-  // 1. Cambiamos los estados lógicos (ya no hay escena ejecutándose)
   ejecutandoEscena = false;
   nombreEscenaActual = "Manual";
   
-  // 2. Actualizamos la EEPROM para que sepa que no hay escena activa
+  //Actualizamos la EEPROM para que sepa que no hay escena activa
   EEPROM.update(DIR_LAST_SCENE_ACTIVE, 0); 
 
-  // 3. Avisamos por serial (útil para depurar)
+  //Avisamos por serial
   Serial.println("--- DETENIENDO ESCENA ---");
   Serial.println("Modo actual: Manual");
 
-  // 4. FINALMENTE actualizamos la pantalla LCD
+  //Actualizamos la pantalla LCD
   actualizarLCD();
 }
 
-// ********** CARGA DE ARCHIVOS .ORG (cuando le enviamos una "receta" completa) **********
+// ********** CARGA DE ARCHIVOS .ORG **********
 
 void iniciarModoCarga() {
   // Activamos el "modo recepción" para archivos .org
@@ -297,7 +276,6 @@ void iniciarModoCarga() {
 }
 
 void procesarLineaArchivoOrg(String linea) {
-  // Primero: ¿Es la línea que indica el fin del archivo?
   if (linea.startsWith("END_LOAD")) {
     String nombre = linea.substring(8);
     nombre.trim();
@@ -305,7 +283,7 @@ void procesarLineaArchivoOrg(String linea) {
     
     // Verificamos que tengamos un nombre y al menos un paso
     if (nombre.length() > 0 && pasosBufferCount > 0) {
-      guardarEscenaEnEEPROM(nombre);  // ¡Guardamos en la memoria permanente!
+      guardarEscenaEnEEPROM(nombre);  // ¡Guardamos en la memoria!
     } else {
       Serial.println("ERROR: Nombre vacio o sin pasos.");
     }
@@ -325,7 +303,6 @@ void procesarLineaArchivoOrg(String linea) {
   int p2 = linea.indexOf(':', p1 + 1);
   int p3 = linea.indexOf(':', p2 + 1);
 
-  // Si encontramos todos los separadores y tenemos espacio en el buffer...
   if (p1 > 0 && p2 > 0 && p3 > 0 && pasosBufferCount < 50) {
     // Extraemos cada parte de la línea
     String amb = linea.substring(0, p1);
@@ -354,14 +331,14 @@ void procesarLineaArchivoOrg(String linea) {
   }
 }
 
-// ********** MEMORIA EEPROM (la "memoria a largo plazo" de la casa) **********
+// ********** MEMORIA EEPROM **********
 
 void guardarEscenaEnEEPROM(String nombre) {
   // Primero, vemos cuántas escenas ya tenemos guardadas
   int numEscenas = EEPROM.read(DIR_NUM_ESCENAS);
   if (numEscenas == 255) numEscenas = 0;  // Si es 255, significa que la EEPROM está virgen
 
-  int slotIndex = -1;  // ¿En qué "cajón" guardaremos esta escena?
+  int slotIndex = -1; 
 
   // 1. ¿Ya existe una escena con este nombre? Si sí, la sobrescribimos
   for (int i = 0; i < numEscenas; i++) {
@@ -520,8 +497,6 @@ void borrarEEPROM() {
   Serial.println("EEPROM BORRADA COMPLETAMENTE.");
 }
 
-// ********** FUNCIONES AUXILIARES (nuestras "herramientas" de trabajo) **********
-
 void setLuz(int pin, bool estado, String nombre) {
   // Cualquier comando manual detiene la escena automática
   detenerEscena();
@@ -552,14 +527,14 @@ void setVentilador(int nuevoEstado) {
   
   // Actualizamos el estado en memoria
   estadoFan = nuevoEstado;
-  EEPROM.update(DIR_FAN_STATE, estadoFan);  // ¡Guardamos inmediatamente en EEPROM!
+  EEPROM.update(DIR_FAN_STATE, estadoFan); 
   aplicarMotor();  // Aplicamos el cambio al relay
   
   Serial.print("FAN");
   Serial.print(estadoFan);
   Serial.println(" guardado en EEPROM");
   
-  actualizarLCD();  // Mostramos el cambio en la pantalla
+  actualizarLCD(); 
 }
 
 void aplicarMotor() {
@@ -597,7 +572,7 @@ void setPuerta(bool abierta) {
   
   Serial.println(abierta ? "PUERTA: ABIERTA" : "PUERTA: CERRADA");
   
-  actualizarLCD();  // Mostramos el cambio en la pantalla
+  actualizarLCD(); 
 }
 
 void togglePuerta() {
@@ -613,7 +588,7 @@ int obtenerPinDeNombre(String nombre) {
   if (nombre == "COCINA") return PIN_COCINA;
   if (nombre == "BANO" || nombre == "BAÑO") return PIN_BANO;
   if (nombre == "HABITACION" || nombre == "HAB") return PIN_HAB;
-  return -1;  // -1 significa "no encontrado"
+  return -1; 
 }
 
 void actualizarLCD() {
@@ -701,8 +676,27 @@ void imprimirAyuda() {
 
 ### CODIGO BASE DEL LCD I2C
 
-Mario geidá
+```Arduino
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup(){
+  lcd.init();
+  lcd.setCursor(0,0);
+  lcd.clear();
+  lcd.print("Lorem ipsum dolor sit amet orci aliquam.");
+}
+
+void loop(){
+  delay(500);
+  lcd.scrollDisplayLeft();
+}
+
+
+
+```
 ---
 
 ### CODIGO BASE DEL SERVOMOTOR
@@ -776,4 +770,33 @@ Soko
 
 ### CODIGO BASE DE EEPROM
 
-Mario2
+```Arduino
+//código para escribir y leer datos en la EEPROM
+#include <EEPROM.h>
+
+byte pinButton = 2;
+bool valorPinButton = false;
+const dirValorPinButton = 0;
+bool ultimoValorPinButton;
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(pinButton, INPUT);
+  leerUltimoValor();
+  Serial.print("El último valor del botón fue: ");
+  Serial.println(ultimoValorPinButton);
+}
+
+void loop(){
+  delay(500);
+  if (valorPinButton){
+    EEPROM.update(dirValorPinButton, HIGH);
+  }else{
+    EEPROM.update(dirValorPinButton, LOW);
+  }
+}
+
+void leerUltimoValor(){
+  ultimoValorPinButton = EEPROM.read(dirValorPinButton);
+}
+```

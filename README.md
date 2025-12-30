@@ -4,7 +4,7 @@ Creo que este si lo toma como mi correo
 - [x] Introducción
 - [x] Objetivos
 - [x] Marco Teórico
-- [ ] Explicación detallada del sistema (incluye diagramas de flujo)
+- [x] Explicación detallada del sistema (incluye diagramas de flujo)
 - [x] Descripción de comandos seriales (con tabla)
 - [x] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
@@ -113,8 +113,14 @@ El sistema opera mediante estados secuenciales predefinidos:
 
 Los estados solo pueden activarse en orden, evitando la activación simultánea o desordenada de modos. Los cambios de estado se realizan enviando comandos desde la computadora a través del puerto serial. Cada cambio actualiza la iluminación, los actuadores correspondientes y se guarda el estado en la EEPROM.
 
+Este guardado en la EEPROM se logra mediante el uso de la librería incluída de Arduino "EEPROM", en donde con el comando de ```EEPROM.update(direccion, valor);``` se puede conseguir que la EEPROM cambie el valor de la dirección establecida en el caso de que exista un cambio de valor.
+
 La pantalla LCD 16x2 muestra el modo activo en tiempo real, permitiendo al usuario conocer el estado actual del sistema.
 
+
+![Diagrama de flujo](/capturas/diagrama_flujo.png)
+
+>El diagrama de flujo muestra de manera simplificada el proceso desde que inicia el programa o se conecta el Arduino a la corriente hasta el procesamiento de los comandos.
 ---
 
 ## Componentes y presupuesto
