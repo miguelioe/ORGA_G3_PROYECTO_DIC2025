@@ -232,7 +232,7 @@ void aplicarMotor() {
 [Accede a este circuito simulado! (haz clic en cualquier sitio azul)](https://www.tinkercad.com/things/7qkBuMOths8-motor-dc-con-puente-h)
 
 
-# Union de Componentes, Segunda Fase
+# Union de Componentes, Fase Final
 
 > Estas pruebas usan botones para simular la EEPROM  
 
