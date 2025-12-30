@@ -113,6 +113,8 @@ El sistema opera mediante estados secuenciales predefinidos:
 
 Los estados solo pueden activarse en orden, evitando la activación simultánea o desordenada de modos. Los cambios de estado se realizan enviando comandos desde la computadora a través del puerto serial. Cada cambio actualiza la iluminación, los actuadores correspondientes y se guarda el estado en la EEPROM.
 
+Este guardado en la EEPROM se logra mediante el uso de la librería incluída de Arduino "EEPROM", en donde con el comando de ```EEPROM.update(direccion, valor);``` se puede conseguir que la EEPROM cambie el valor de la dirección establecida en el caso de que exista un cambio de valor.
+
 La pantalla LCD 16x2 muestra el modo activo en tiempo real, permitiendo al usuario conocer el estado actual del sistema.
 
 ---

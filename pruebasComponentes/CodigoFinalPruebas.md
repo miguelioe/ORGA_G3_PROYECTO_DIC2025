@@ -701,8 +701,27 @@ void imprimirAyuda() {
 
 ### CODIGO BASE DEL LCD I2C
 
-Mario geidá
+```Arduino
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup(){
+  lcd.init();
+  lcd.setCursor(0,0);
+  lcd.clear();
+  lcd.print("Lorem ipsum dolor sit amet orci aliquam.");
+}
+
+void loop(){
+  delay(500);
+  lcd.scrollDisplayLeft();
+}
+
+
+
+```
 ---
 
 ### CODIGO BASE DEL SERVOMOTOR
@@ -776,4 +795,33 @@ Soko
 
 ### CODIGO BASE DE EEPROM
 
-Mario2
+```Arduino
+//código para escribir y leer datos en la EEPROM
+#include <EEPROM.h>
+
+byte pinButton = 2;
+bool valorPinButton = false;
+const dirValorPinButton = 0;
+bool ultimoValorPinButton;
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(pinButton, INPUT);
+  leerUltimoValor();
+  Serial.print("El último valor del botón fue: ");
+  Serial.println(ultimoValorPinButton);
+}
+
+void loop(){
+  delay(500);
+  if (valorPinButton){
+    EEPROM.update(dirValorPinButton, HIGH);
+  }else{
+    EEPROM.update(dirValorPinButton, LOW);
+  }
+}
+
+void leerUltimoValor(){
+  ultimoValorPinButton = EEPROM.read(dirValorPinButton);
+}
+```
