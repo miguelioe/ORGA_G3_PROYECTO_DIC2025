@@ -234,7 +234,7 @@ void aplicarMotor() {
 
 # Union de Componentes, Fase Final
 
-> Estas pruebas usan botones para simular la EEPROM  
+> Esta prueba esta implementado con DIP Switch SPST simulando el funcionamiento por comando en Comunicación Serial que se implementará en la Casa Domotizada 
 
 ```  
     #include <Servo.h>
