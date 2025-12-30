@@ -8,7 +8,7 @@
 - [ ] Descripción de comandos seriales (con tabla)
 - [ ] Explicación de archivos `.org`
 - [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
-- [ ] Aportes individuales
+- [x] Aportes individuales
 - [ ] Análisis de resultados y pruebas realizadas
 - [x] Conclusiones
 - [x] Bibliografía
@@ -262,6 +262,38 @@ Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad 
 | **TOTAL FINAL**                 |                   |          | Q490.00     |
 
 ---
+
+## APORTES INDIVIDUALES DEL PROYECTO
+
+### Mario López
+- Manejo del módulo LCD I2C tanto en simulador como en montaje físico.
+- Implementación y gestión de la memoria EEPROM.
+- Aportes de código programable y soporte técnico al resto del equipo.
+- Contribución teórica para la explicación general del funcionamiento del sistema.
+
+### Abner García
+- Integración de todos los componentes en el simulador para prevenir daños físicos.
+- Armado y realización de pruebas del sistema en físico a partir del diseño simulado.
+- Programación e integración de los códigos base aportados por los demás integrantes.
+- Ensamblaje del circuito final en físico.
+
+### Bryan Murcia
+- Manejo del simulador y del montaje físico del sistema de luces LED.
+- Aporte significativo en la construcción de la maqueta.
+- Corrección e integración de distintos fragmentos de código para el programa final de Arduino.
+- Aporte teórico en el análisis de resultados mediante el uso del monitor serial.
+- Elaboración del apartado correspondiente a los archivos `.org`.
+
+### Julio Posadas
+- Simulación del motor DC y solución práctica en físico mediante el uso de un relé, ante la falta de un integrado.
+- Apoyo en la construcción de la maqueta.
+- Introducción teórica y práctica al uso de la memoria EEPROM, facilitando su comprensión al resto del equipo.
+
+### Alejandro Salazar
+- Obtención y gestión de los componentes electrónicos necesarios para el proyecto.
+- Simulación y verificación del funcionamiento del servomotor en físico.
+- Aportes teóricos relacionados con las generalidades y documentación del proyecto.
+
 
 ## Conclusiones
 
