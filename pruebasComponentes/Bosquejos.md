@@ -353,9 +353,9 @@ void aplicarMotor() {
 [https://www.tinkercad.com/things/hlgouVLsfX1-union-de-componentes](https://www.tinkercad.com/things/h0FTCla1Lwe/editel?sharecode=mTq7qzWr5xt4f_s4ksejkFeTj6Ktb6us_5swuHZ8ZWE)
 
 
+# Código en Arduino IDE con implementación en Comunicación Serial, código para Casa Domotizada.
 
-
-CÓDIGO PROPORCIONADO CON AUXILIAR CON RETOQUES MENORES
+> CÓDIGO PROPORCIONADO CON AUXILIAR CON RETOQUES MENORES
 ```Arduino
 // Importaciones de las Librerias
 #include <Wire.h>
