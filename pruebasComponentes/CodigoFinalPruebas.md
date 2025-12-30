@@ -1,6 +1,130 @@
 ## CODIGO FINAL
 
-Murcia
+```Arduino
+/*
+ PROYECTO CASA DOMOTIZADA
+ Control de luces, ventilador con relay, puerta con servo y escenas.
+ Se controla por Serial y guarda estados en EEPROM.
+*/
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+#include <EEPROM.h>
+
+// Pines de luces
+const int PIN_SALA = 2;
+const int PIN_COMEDOR = 3;
+const int PIN_COCINA = 4;
+const int PIN_BANO = 5;
+const int PIN_HAB = 6;
+
+// Pines generales
+const int PIN_BOTON = 7;   // Botón físico de la puerta
+const int PIN_FAN = 9;     // Relay del ventilador
+const int PIN_SERVO = 10;  // Servo de la puerta
+
+// Variables para el antirrebote del botón
+int estadoBotonActual = LOW;
+int ultimoEstadoBoton = LOW;
+unsigned long ultimoTiempoRebote = 0;
+const unsigned long delayRebote = 50;
+
+// Objetos principales
+LiquidCrystal_I2C lcd(0x27, 16, 2); // LCD por I2C
+Servo puertaServo;                 // Servo de la puerta
+
+// Variables generales del sistema
+int estadoFan = 0;                  // 0 apagado, >0 encendido
+bool puertaAbierta = false;          // Estado actual de la puerta
+bool ejecutandoEscena = false;       // Indica si hay escena corriendo
+String nombreEscenaActual = "Manual";
+
+// Direcciones usadas en EEPROM
+const int DIR_FAN_STATE = 0;
+const int DIR_DOOR_STATE = 1;
+const int DIR_LAST_SCENE_ACTIVE = 2;
+const int DIR_LAST_SCENE_NAME = 11;
+const int DIR_NUM_ESCENAS = 50;
+
+// Configuración de escenas
+const int MAX_ESCENAS = 3;
+const int BYTES_POR_ESCENA = 250;
+const int DIR_BASE_ESCENAS = 100;
+
+/*
+ ESTRUCTURA DE UN PASO DE ESCENA
+ Cada paso indica qué pin se enciende o apaga y por cuánto tiempo
+*/
+struct PasoEscena {
+  byte pin;              // Pin que se controla
+  bool estado;           // HIGH o LOW
+  unsigned int duracion; // Tiempo del paso
+  byte repeticiones;     // Guardado aunque no se use
+};
+
+// Buffer temporal para ejecutar escenas
+PasoEscena bufferEscena[50];
+int pasosBufferCount = 0;
+
+// Variables para controlar el tiempo de escenas
+int pasoIndex = 0;
+unsigned long tiempoInicioPaso = 0;
+bool modoCarga = false;
+
+// SETUP
+void setup() {
+  Serial.begin(9600);
+
+  // Configuramos pines de salida
+  pinMode(PIN_SALA, OUTPUT);
+  pinMode(PIN_COMEDOR, OUTPUT);
+  pinMode(PIN_COCINA, OUTPUT);
+  pinMode(PIN_BANO, OUTPUT);
+  pinMode(PIN_HAB, OUTPUT);
+  pinMode(PIN_FAN, OUTPUT);
+  pinMode(PIN_BOTON, INPUT);
+
+  // Inicializamos servo y LCD
+  puertaServo.attach(PIN_SERVO);
+  lcd.init();
+  lcd.backlight();
+
+  // Mensaje de inicio
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando...");
+  delay(1000);
+
+  // Recuperamos lo guardado en EEPROM
+  recuperarEstadoSistema();
+
+  Serial.println("Sistema listo");
+}
+
+// LOOP PRINCIPAL
+void loop() {
+  // Revisamos el botón físico
+  leerBotonFisico();
+
+  // Revisamos si llegó un comando por serial
+  if (Serial.available()) {
+    String cmd = Serial.readStringUntil('\n');
+    cmd.trim();
+    cmd.toUpperCase();
+
+    if (modoCarga)
+      procesarLineaArchivoOrg(cmd); // Estamos cargando una escena
+    else
+      procesarComando(cmd);         // Comando normal
+  }
+
+  // Si hay una escena activa, la ejecutamos
+  if (ejecutandoEscena)
+    manejarLogicaEscena();
+}
+
+
+```
 
 ---
 
