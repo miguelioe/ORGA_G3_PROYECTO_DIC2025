@@ -687,12 +687,6 @@ Su uso es fundamental para garantizar el correcto funcionamiento y la seguridad 
 
 ---
 
-## Aportes individuales
-
-SOKO DEBE HACERLO
-
----
-
 ## APORTES INDIVIDUALES DEL PROYECTO
 
 ### Mario López
