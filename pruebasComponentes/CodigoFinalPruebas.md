@@ -123,7 +123,54 @@ void loop() {
     manejarLogicaEscena();
 }
 
+// LECTURA DEL BOTÓN DE LA PUERTA
+void leerBotonFisico() {
+  int lectura = digitalRead(PIN_BOTON);
 
+  // Si el estado cambia, reiniciamos el conteo
+  if (lectura != ultimoEstadoBoton) {
+    ultimoTiempoRebote = millis();
+  }
+
+  // Si ya pasó el tiempo de rebote, aceptamos la lectura
+  if ((millis() - ultimoTiempoRebote) > delayRebote) {
+    if (lectura != estadoBotonActual) {
+      estadoBotonActual = lectura;
+
+      // Si se presionó el botón, cambiamos la puerta
+      if (estadoBotonActual == HIGH) {
+        togglePuerta();
+      }
+    }
+  }
+
+  ultimoEstadoBoton = lectura;
+}
+
+// ABRIR O CERRAR LA PUERTA
+void togglePuerta() {
+  if (puertaAbierta) {
+    puertaServo.write(0);          // Cerramos
+    puertaAbierta = false;
+    Serial.println("Puerta cerrada");
+  } else {
+    puertaServo.write(90);         // Abrimos
+    puertaAbierta = true;
+    Serial.println("Puerta abierta");
+  }
+
+  // Guardamos el estado en EEPROM
+  EEPROM.update(DIR_DOOR_STATE, puertaAbierta);
+}
+
+// RECUPERAR ESTADOS DESDE EEPROM
+void recuperarEstadoSistema() {
+  estadoFan = EEPROM.read(DIR_FAN_STATE);
+  puertaAbierta = EEPROM.read(DIR_DOOR_STATE);
+
+  digitalWrite(PIN_FAN, estadoFan > 0 ? HIGH : LOW);
+  puertaServo.write(puertaAbierta ? 90 : 0);
+}
 ```
 
 ---
