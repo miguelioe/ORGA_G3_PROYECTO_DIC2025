@@ -1,20 +1,3 @@
-## MARKDOWN COMPLETO
-Creo que este si lo toma como mi correo
-- [x] Carátula
-- [x] Introducción
-- [x] Objetivos
-- [x] Marco Teórico
-- [x] Explicación detallada del sistema (incluye diagramas de flujo)
-- [x] Descripción de comandos seriales (con tabla)
-- [x] Explicación de archivos `.org`
-- [x] Tabla de componentes con especificaciones técnicas y tabla de presupuesto
-- [x] Aportes individuales
-- [x] Análisis de resultados y pruebas realizadas
-- [x] Conclusiones
-- [x] Bibliografía
-
----
-
 Universidad San Carlos de Guatemala
 
 Facultad de Ingeniería
